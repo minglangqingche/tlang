@@ -128,10 +128,38 @@ impl Scanner {
             },
 
             _ => {
-                self.error("unknown char!")
+                if Self::is_digit(&c[..]) {
+                    self.get_digit()
+                }else {
+                    self.error("unknown char!")
+                }
             },
         }
         
+    }
+
+    fn get_digit(&mut self) -> Option<Token> {
+        while Self::is_digit(self.peek()) {
+            self.advance();
+        }
+        if self.peek().eq(".") && Self::is_digit(self.peek_next()) {
+            self.advance(); // 吸收dot
+
+            while Self::is_digit(self.peek()) {
+                self.advance();
+            }
+        }
+        
+        let val = &self.code[self.start..self.current];
+        Some(Token::new(val.to_string(), TokenType::DOUBLE, Some(Box::<f64>::new(val.parse::<f64>().unwrap())), self.line))
+    }
+
+    fn peek_next(&self) -> &str {
+        if self.is_end() || self.current+1 >= self.code.len() {
+            "\0"
+        }else {
+            &self.code[self.current+1..self.current+2]
+        }
     }
 
     fn get_string(&mut self) -> Option<Token> {
@@ -186,6 +214,22 @@ impl Scanner {
     fn is_end(&self) -> bool {
         self.current >= self.code.len()
     }
+
+    fn is_digit(x: &str) -> bool {
+        match x {
+            "0" => true,
+            "1" => true,
+            "2" => true,
+            "3" => true,
+            "4" => true,
+            "5" => true,
+            "6" => true,
+            "7" => true,
+            "8" => true,
+            "9" => true,
+            _ => false,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -230,6 +274,11 @@ mod test {
         assert_eq!(a, Some(get_a_token(TokenType::STRING)));
         let a = a.unwrap();
         assert_eq!(a.to_string(), "lexeme=hello,type=String,line=1".to_string());
+    }
+
+    #[test]
+    fn is_digit_test() {
+        assert_eq!(Scanner::is_digit("\0"), false);
     }
 
     fn get_a_token(t: TokenType) -> Token {
