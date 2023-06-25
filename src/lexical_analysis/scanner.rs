@@ -123,12 +123,25 @@ impl<'a> Scanner<'a> {
                 }
             },
 
-            // 注释及/
+            // 单行注释及slash
             "/" => {
                 if self.match_next("/") {
                     while self.peek().ne("\n") && !self.is_end() {
                         self.advance();
                     }
+                    None
+                }else if self.match_next("*") { // 多行注释
+                    while self.peek().ne("*") && self.peek_next().ne("/") && !self.is_end() {
+                        if self.peek().eq("\n") {
+                            self.line += 1;
+                        }
+
+                        self.advance();
+                    }
+                    // 吸收 start 与 slash
+                    self.advance();
+                    self.advance();
+
                     None
                 }else {
                     Some(Token::new(c, TokenType::SLASH, None, self.line))
@@ -253,8 +266,12 @@ impl<'a> Scanner<'a> {
     }
 
     fn advance(&mut self) -> String {
-        self.current += 1;
-        self.code[self.current - 1..self.current].to_string()
+        if self.is_end() {
+            "\0".to_string()
+        }else {
+            self.current += 1;
+            self.code[self.current - 1..self.current].to_string()
+        }
     }
 
     fn is_end(&self) -> bool {
