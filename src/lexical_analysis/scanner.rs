@@ -42,7 +42,7 @@ impl<'a> Scanner<'a> {
         }
     }
 
-    pub fn scann(&mut self) -> &Vec<Token> {
+    pub fn scann(&mut self) -> Result<&Vec<Token>, u32> {
         while !self.is_end() {
             // scanning token
             self.start = self.current;
@@ -57,7 +57,11 @@ impl<'a> Scanner<'a> {
         // the end of code
         self.token_list.push(Token::new(String::from("EOF"), TokenType::EOF, None, self.line));
 
-        &(self.token_list)
+        if self.error != 0 {
+            Err(self.error)
+        }else {
+            Ok(&(self.token_list))
+        }
     }
 
     fn get_token(&mut self) -> Option<Token> {
@@ -152,7 +156,7 @@ impl<'a> Scanner<'a> {
                 }else if Self::is_alpha(&c[..]) {
                     self.identifier()
                 }else {
-                    self.error("unknown char!")
+                    self.error("unknown char!", self.line, &c)
                 }
             },
         }
@@ -213,7 +217,7 @@ impl<'a> Scanner<'a> {
         }
 
         if self.is_end() {
-            self.error("Unterminated string");
+            self.error("Unterminated string", self.line, "\"..");
             return None;
         }
 
@@ -231,8 +235,8 @@ impl<'a> Scanner<'a> {
         }
     }
 
-    fn error(&mut self, massege: &str) -> Option<Token> {
-        crate::interpreter_error::error(massege);
+    fn error(&mut self, massege: &str, line:u32, val: &str) -> Option<Token> {
+        crate::interpreter_error::error(&format!("{}\n in line={}, char={}", massege, line, val));
         self.error += 1;
         None
     }

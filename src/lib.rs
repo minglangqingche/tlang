@@ -8,8 +8,16 @@ pub mod tlang {
         pub fn run(path: &str) {
             let code = read_file::read_file(path);
             let mut scanner = scanner::Scanner::new(code);
-            for t in scanner.scann() {
-                println!("{:#?}", t);
+            let t = scanner.scann();
+            match t {
+                Ok(val) => {
+                    for t in val {
+                        println!("{:#?}", t);
+                    }
+                },
+                Err(err) => {
+                    crate::interpreter_error::error_exit(&format!("lexical analysis errror!total {} error.", err), 65);
+                }
             }
         }
     }
