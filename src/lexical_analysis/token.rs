@@ -1,14 +1,16 @@
+use std::any::Any;
 use super::token_type::*;
 
-pub struct Token<T> {
+#[derive(Debug)]
+pub struct Token {
     lexeme: String,        // 词素本身
     token_type: TokenType, // 类型
-    literal: Option<T>,    // 字面值
-    line: i32,             // 所在行
+    literal: Option<Box<dyn Any>>,    // 字面值
+    line: u32,             // 所在行
 }
 
-impl<T> Token<T> {
-    pub fn new(lexeme: String, token_type: TokenType, literal: Option<T>, line: i32) -> Token<T> {
+impl Token {
+    pub fn new(lexeme: String, token_type: TokenType, literal: Option<Box<dyn Any>>, line: u32) -> Token {
         Token {
             lexeme,
             literal,
@@ -18,9 +20,14 @@ impl<T> Token<T> {
     }
 
     pub fn to_string(&self) -> String {
-        format!(
-            "lexeme={},type={},line={}",
-            self.lexeme, self.token_type, self.line
-        )
+        format!("lexeme={},type={},line={}", self.lexeme, self.token_type, self.line)
+    }
+}
+
+impl Eq for Token {}
+
+impl PartialEq for Token {
+    fn eq(&self, other: &Self) -> bool {
+        self.token_type == other.token_type
     }
 }
