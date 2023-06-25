@@ -131,7 +131,7 @@ impl<'a> Scanner<'a> {
                     }
                     None
                 }else if self.match_next("*") { // 多行注释
-                    while self.peek().ne("*") && self.peek_next().ne("/") && !self.is_end() {
+                    while !(self.peek().eq("*") && self.peek_next().eq("/")) && !self.is_end() {
                         if self.peek().eq("\n") {
                             self.line += 1;
                         }
