@@ -122,11 +122,35 @@ impl Scanner {
                 None
             },
 
+            // string
+            "\"" => {
+                self.get_string()
+            },
+
             _ => {
-                self.error()
+                self.error("unknown char!")
             },
         }
         
+    }
+
+    fn get_string(&mut self) -> Option<Token> {
+        while self.peek().ne("\"") && !self.is_end() {
+            if self.peek().eq("\n") {
+                self.line += 1;
+            }
+            self.advance();
+        }
+
+        if self.is_end() {
+            self.error("Unterminated string");
+            return None;
+        }
+
+        self.advance(); // 读入结尾引号
+
+        let string = self.code[self.start+1..self.current-1].to_string(); // 去除引号
+        Some(Token::new(string.clone(), TokenType::STRING, Some(Box::<String>::new(string)), self.line))
     }
 
     fn peek(&self) -> &str {
@@ -137,8 +161,8 @@ impl Scanner {
         }
     }
 
-    fn error(&mut self) -> Option<Token> {
-        crate::interpreter_error::error("unknown char!");
+    fn error(&mut self, massege: &str) -> Option<Token> {
+        crate::interpreter_error::error(massege);
         self.error += 1;
         None
     }
@@ -177,9 +201,17 @@ mod test {
 
     #[test]
     fn peek_test() {
-        let mut a = Scanner::new("//00000\na".to_string());
+        let mut a = Scanner::new("0123".to_string());
+        a.advance(); // 0
+        a.advance(); // 1
+        assert_eq!(a.current, 2);
+        assert_eq!(a.peek(), "2"); // 1
+        assert_eq!(a.current, 2);
+
+        let mut a = Scanner::new("//23456\n01".to_string());
         a.get_token();
-        assert_eq!(a.advance(), "\n");
+        a.get_token();
+        assert_eq!(a.line, 2);
     }
 
     #[test]
@@ -188,6 +220,16 @@ mod test {
         assert_eq!(a.get_token(), None);
         let mut a = Scanner::new("/000".to_string());
         assert_eq!(a.get_token().unwrap(), get_a_token(TokenType::SLASH));
+    }
+
+    #[test]
+    fn get_string_test() {
+        let mut a = Scanner::new(r#""hello""#.to_string());
+        a.advance();
+        let a = a.get_string();
+        assert_eq!(a, Some(get_a_token(TokenType::STRING)));
+        let a = a.unwrap();
+        assert_eq!(a.to_string(), "lexeme=hello,type=String,line=1".to_string());
     }
 
     fn get_a_token(t: TokenType) -> Token {

@@ -3,17 +3,17 @@ use super::token_type::*;
 
 #[derive(Debug)]
 pub struct Token {
-    lexeme: String,        // 词素本身
+    lexeme: String, // 词素本身
     token_type: TokenType, // 类型
-    literal: Option<Box<dyn Any>>,    // 字面值
-    line: u32,             // 所在行
+    val: Option<Box<dyn Any>>, // 字面值
+    line: u32, // 所在行
 }
 
 impl Token {
-    pub fn new(lexeme: String, token_type: TokenType, literal: Option<Box<dyn Any>>, line: u32) -> Token {
+    pub fn new(lexeme: String, token_type: TokenType, val: Option<Box<dyn Any>>, line: u32) -> Token {
         Token {
             lexeme,
-            literal,
+            val,
             token_type,
             line,
         }
