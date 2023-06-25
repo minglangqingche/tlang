@@ -3,14 +3,14 @@ use super::token_type::*;
 
 #[derive(Debug)]
 pub struct Token {
-    lexeme: String, // 词素本身
+    lexeme: Vec<char>, // 词素本身
     token_type: TokenType, // 类型
     val: Option<Box<dyn Any>>, // 字面值
     line: u32, // 所在行
 }
 
 impl Token {
-    pub fn new(lexeme: String, token_type: TokenType, val: Option<Box<dyn Any>>, line: u32) -> Token {
+    pub fn new(lexeme: Vec<char>, token_type: TokenType, val: Option<Box<dyn Any>>, line: u32) -> Token {
         Token {
             lexeme,
             val,
@@ -20,7 +20,7 @@ impl Token {
     }
 
     pub fn to_string(&self) -> String {
-        format!("lexeme={},type={},line={}", self.lexeme, self.token_type, self.line)
+        format!("lexeme={:?},type={},line={}", self.lexeme, self.token_type, self.line)
     }
 }
 

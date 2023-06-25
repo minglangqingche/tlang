@@ -12,7 +12,7 @@ pub mod tlang {
             match t {
                 Ok(val) => {
                     for t in val {
-                        println!("{:#?}", t);
+                        println!("{:?}", t);
                     }
                 },
                 Err(err) => {
