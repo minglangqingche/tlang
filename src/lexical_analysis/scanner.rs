@@ -131,18 +131,7 @@ impl<'a> Scanner<'a> {
                     }
                     None
                 }else if self.match_next("*") { // 多行注释
-                    while !(self.peek().eq("*") && self.peek_next().eq("/")) && !self.is_end() {
-                        if self.peek().eq("\n") {
-                            self.line += 1;
-                        }
-
-                        self.advance();
-                    }
-                    // 吸收 start 与 slash
-                    self.advance();
-                    self.advance();
-
-                    None
+                    self.multiline_comment()
                 }else {
                     Some(Token::new(c, TokenType::SLASH, None, self.line))
                 }
@@ -174,6 +163,27 @@ impl<'a> Scanner<'a> {
             },
         }
         
+    }
+
+    fn multiline_comment(&mut self) -> Option<Token> {
+        while !(self.peek().eq("*") && self.peek_next().eq("/")) && !self.is_end() {
+            if self.peek().eq("\n") {
+                self.line += 1;
+            }else if self.peek().eq("/") && self.peek_next().eq("*") {
+                // 吸收 start 与 slash
+                self.advance();
+                self.advance();
+
+                self.multiline_comment();
+            }
+
+            self.advance();
+        }
+        // 吸收 start 与 slash
+        self.advance();
+        self.advance();
+
+        None
     }
 
     fn identifier(&mut self) -> Option<Token> {
