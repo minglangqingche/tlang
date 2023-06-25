@@ -181,6 +181,14 @@ impl PartialEq for TokenType {
     }
 }
 
+impl Copy for TokenType {}
+
+impl Clone for TokenType {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

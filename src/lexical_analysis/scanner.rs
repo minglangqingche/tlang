@@ -1,18 +1,36 @@
+use std::collections::HashMap;
 use super::{token::*, token_type::*};
 
-pub struct Scanner {
+pub struct Scanner<'a> {
     code: String,
     token_list: Vec<Token>,
 
     start: usize, // 被扫描词素的第一个字符
     current: usize, // 被处理的当前字符
     line: u32, // 被扫描词素所在行
+    keywords: HashMap<&'a str, TokenType>,
 
     error: u32,
 }
 
-impl Scanner {
+impl<'a> Scanner<'a> {
     pub fn new(code: String) -> Self {
+        let mut keywords: HashMap<&'a str, TokenType> = HashMap::new();
+        keywords.insert("let", TokenType::LET);
+        keywords.insert("fn", TokenType::FN);
+        keywords.insert("class", TokenType::CLASS);
+        keywords.insert("false", TokenType::FALSE);
+        keywords.insert("true", TokenType::TRUE);
+        keywords.insert("this", TokenType::THIS);
+        keywords.insert("else", TokenType::ELSE);
+        keywords.insert("if", TokenType::IF);
+        keywords.insert("for", TokenType::FOR);
+        keywords.insert("while", TokenType::WHILE);
+        keywords.insert("null", TokenType::NULL);
+        keywords.insert("print", TokenType::PRINT);
+        keywords.insert("return", TokenType::RETURN);
+        keywords.insert("super", TokenType::SUPER);
+
         Self {
             code,
             token_list: Vec::new(),
@@ -20,6 +38,7 @@ impl Scanner {
             current: 0,
             line: 1,
             error: 0,
+            keywords,
         }
     }
 
@@ -36,7 +55,7 @@ impl Scanner {
         }
         
         // the end of code
-        self.token_list.push(Token::new(String::from("EOF"), TokenType::EOF, None, 0));
+        self.token_list.push(Token::new(String::from("EOF"), TokenType::EOF, None, self.line));
 
         &(self.token_list)
     }
@@ -130,12 +149,35 @@ impl Scanner {
             _ => {
                 if Self::is_digit(&c[..]) {
                     self.get_digit()
+                }else if Self::is_alpha(&c[..]) {
+                    self.identifier()
                 }else {
                     self.error("unknown char!")
                 }
             },
         }
         
+    }
+
+    fn identifier(&mut self) -> Option<Token> {
+        while Self::is_digit_or_alpha(self.peek()) {
+            self.advance();
+        }
+
+        let a = &self.code[self.start..self.current]; // 获取标识符
+        let a_type = self.keywords.get(a);
+        Some(Token::new(a.to_string(),
+            match a_type { Some(&val) => val , None => TokenType::IDENTIFIER, },
+            None, self.line))
+    }
+
+    fn is_digit_or_alpha(c: &str) -> bool {
+        Self::is_alpha(c) || Self::is_digit(c)
+    }
+
+    fn is_alpha(c: &str) -> bool {
+        let c = c.as_bytes()[0];
+        (c >= b'a' && c <= b'z') || (c >= b'A' && c <= b'Z') || c == b'_'
     }
 
     fn get_digit(&mut self) -> Option<Token> {
@@ -216,19 +258,8 @@ impl Scanner {
     }
 
     fn is_digit(x: &str) -> bool {
-        match x {
-            "0" => true,
-            "1" => true,
-            "2" => true,
-            "3" => true,
-            "4" => true,
-            "5" => true,
-            "6" => true,
-            "7" => true,
-            "8" => true,
-            "9" => true,
-            _ => false,
-        }
+        let c = x.as_bytes()[0];
+        c >= b'0' && c <= b'9'
     }
 }
 
@@ -279,6 +310,17 @@ mod test {
     #[test]
     fn is_digit_test() {
         assert_eq!(Scanner::is_digit("\0"), false);
+        assert_eq!(Scanner::is_digit("0"), true);
+        assert_eq!(Scanner::is_digit("7"), true);
+        assert_eq!(Scanner::is_digit("a"), false);
+    }
+
+    #[test]
+    fn is_alpha_test() {
+        assert_eq!(Scanner::is_alpha("a"), true);
+        assert_eq!(Scanner::is_alpha("g"), true);
+        assert_eq!(Scanner::is_alpha("Z"), true);
+        assert_eq!(Scanner::is_alpha("0"), false);
     }
 
     fn get_a_token(t: TokenType) -> Token {

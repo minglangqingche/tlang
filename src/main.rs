@@ -11,6 +11,6 @@ fn main() {
         tlang::tshlle::tshlle();
     }else {
         // todo run with tlang
-        tlang::tlang::read_file(&args[1]);
+        tlang::tlang::vm::run(&args[1]);
     }
 }

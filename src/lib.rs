@@ -1,9 +1,17 @@
 pub mod tlang {
     mod read_file;
 
-    pub fn read_file(path: &str) {
-        println!("reading {}", path);
-        println!("{}", read_file::read_file(path));
+    pub mod vm {
+        use super::read_file;
+        use crate::lexical_analysis::scanner;
+
+        pub fn run(path: &str) {
+            let code = read_file::read_file(path);
+            let mut scanner = scanner::Scanner::new(code);
+            for t in scanner.scann() {
+                println!("{:#?}", t);
+            }
+        }
     }
 }
 
