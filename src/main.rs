@@ -2,6 +2,8 @@ use std::env;
 use tlang::{interpreter_error, chunk::{chunk, op, value::*}, debug_tools::disassemble, vm::{vm::*, interpret_result::InterpretResult}};
 
 fn main() {
+    let mut chunk = chunk::Chunk::new();
+
     // let args: Vec<String> = env::args().collect();
 
     // if args.len() > 2 {
@@ -13,19 +15,25 @@ fn main() {
     //     // todo run with tlang
     //     tlang::tlang::vm::run(&args[1]);
     // }
+    
+    // -((1.2+3.4)/5.6) = -0.8214285714285714
+    let line = 0;
+    let v = chunk.push_val(Value::Double(1.2));
+    chunk.push_op(op::Opcode::OP_CONST(v), line);
+    let v = chunk.push_val(Value::Double(3.4));
+    chunk.push_op(op::Opcode::OP_CONST(v), line);
+    chunk.push_op(op::Opcode::OP_ADD, line);
+    let v = chunk.push_val(Value::Double(5.6));
+    chunk.push_op(op::Opcode::OP_CONST(v), line);
+    chunk.push_op(op::Opcode::OP_DIVIDE, line);
+    chunk.push_op(op::Opcode::OP_NEGATE, line);
 
-    let mut chunk = chunk::Chunk::new();
-    let v = chunk.push_val(Value::Double(0.05));
-    chunk.push_op(op::Opcode::Op_CONST(v), 0);
-    let v = chunk.push_val(Value::Double(100.0));
-    chunk.push_op(op::Opcode::Op_CONST(v), 1);
-    chunk.push_op(op::Opcode::Op_RETURN, 2);
+    chunk.push_op(op::Opcode::OP_RETURN, 0);
     
     // disassemble::disassemble_chunk(&chunk, "test");
 
     let mut vm = VM::from(chunk);
-    vm.set_debug(true);
-    match vm.run() {
+    match vm.set_debug(true).run() {
         InterpretResult::Ok => {
             println!("program over. no error");
         },

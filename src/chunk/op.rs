@@ -1,7 +1,12 @@
 #[allow(non_camel_case_types)]
 pub enum Opcode {
-    Op_RETURN,
-    Op_CONST(usize), // val_index
+    OP_RETURN,
+    OP_CONST(usize), // val_index
+    OP_NEGATE,
+    OP_ADD,
+    OP_SUB,
+    OP_MULTIPLY,
+    OP_DIVIDE,
 }
 
 impl Copy for Opcode {}

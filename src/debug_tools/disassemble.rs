@@ -3,25 +3,43 @@ use crate::chunk::{chunk::*, op::*,};
 pub fn disassemble_chunk(chunk: &Chunk, name: &str) {
     println!("====$ {} $====", name);
 
-    let mut offset = 0;
-    while  offset < chunk.op_len() {
+    for offset in 0..chunk.op_len() {
         disassemble_instruction(chunk, offset);
-        offset += 1;
     }
+
     println!("====$ over $====");
 }
 
 pub fn disassemble_instruction(chunk: &Chunk, offset: usize) {
     let instruction = chunk.get_op(offset).unwrap();
     match instruction {
-        Opcode::Op_RETURN => {
-            println!("{} {:04}$ OP_RETURN,", get_line(chunk, offset), offset);
+        Opcode::OP_RETURN => {
+            print_code(chunk, offset, "OP_RETURN");
         },
-        Opcode::Op_CONST(index) => {
+        Opcode::OP_CONST(index) => {
             let val = chunk.get_val(*index).to_string();
-            println!("{} {:04}$ OP_CONST {},", get_line(chunk, offset), offset, val);
+            print_code(chunk, offset, &format!("OP_CONST {}", val));
         },
+        Opcode::OP_NEGATE => {
+            print_code(chunk, offset, "OP_NEGATE");
+        },
+        Opcode::OP_ADD => {
+            print_code(chunk, offset, "OP_ADD");
+        },
+        Opcode::OP_DIVIDE => {
+            print_code(chunk, offset, "OP_DIVIDE");
+        },
+        Opcode::OP_MULTIPLY => {
+            print_code(chunk, offset, "OP_MULTIPLY");
+        },
+        Opcode::OP_SUB => {
+            print_code(chunk, offset, "OP_SUBTRACT");
+        }
     }
+}
+
+fn print_code(chunk: &Chunk, offset: usize, name: &str) {
+    println!("{} {:04}$ {},", get_line(chunk, offset), offset, name);
 }
 
 fn get_line(chunk: &Chunk, offset: usize) -> String {
