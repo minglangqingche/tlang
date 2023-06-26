@@ -77,3 +77,17 @@ pub mod lexical_analysis {
     pub mod token_type;
     pub mod scanner;
 }
+
+pub mod chunk {
+    pub mod op;
+    pub mod chunk;
+}
+
+pub mod debug_tools {
+    pub mod disassemble;
+}
+
+pub mod vm {
+    pub mod vm;
+    pub mod interpret_result;
+}
