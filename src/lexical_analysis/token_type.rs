@@ -34,7 +34,7 @@ pub enum TokenType {
     // 关键字
     CLASS, ELSE, FALSE, FN, FOR, IF, NULL, PRINT, RETURN, SUPER, THIS, TRUE, LET, WHILE,
 
-    EOF,
+    EOF, ERROR,
 }
 
 impl TokenType {
@@ -98,7 +98,8 @@ impl TokenType {
             Self::AND_AND => String::from("&&"),
             Self::OR_OR => String::from("||"),
 
-            Self::EOF => String::from("EOF"),
+            Self::EOF => String::from("$EOF$"),
+            Self::ERROR => String::from("$ERROR$"),
         }
     }
 
@@ -163,6 +164,7 @@ impl TokenType {
             Self::OR_OR => 39,
 
             Self::EOF => 40,
+            Self::ERROR => 41,
         }
     }
 }

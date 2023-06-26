@@ -1,16 +1,16 @@
-use std::any::Any;
 use super::token_type::*;
+use crate::chunk::value::*;
 
 #[derive(Debug)]
 pub struct Token {
     lexeme: Vec<char>, // 词素本身
     token_type: TokenType, // 类型
-    val: Option<Box<dyn Any>>, // 字面值
+    val: Option<Value>, // 字面值
     line: u32, // 所在行
 }
 
 impl Token {
-    pub fn new(lexeme: Vec<char>, token_type: TokenType, val: Option<Box<dyn Any>>, line: u32) -> Token {
+    pub fn new(lexeme: Vec<char>, token_type: TokenType, val: Option<Value>, line: u32) -> Token {
         Token {
             lexeme,
             val,

@@ -1,4 +1,6 @@
 pub mod tlang {
+    use crate::lexical_analysis::scanner;
+
     mod read_file {
         use std::fs;
 
@@ -15,23 +17,19 @@ pub mod tlang {
         }
     }
 
-    pub mod vm {
-        use super::read_file;
-        use crate::lexical_analysis::scanner;
+    pub fn run(path: &str) {
+        let code = read_file::read_file(path);
 
-        pub fn run(path: &str) {
-            let code = read_file::read_file(path);
-            let mut scanner = scanner::Scanner::new(code);
-            let t = scanner.scann();
-            match t {
-                Ok(val) => {
-                    for t in val {
-                        println!("{:?}", t);
-                    }
-                },
-                Err(err) => {
-                    crate::interpreter_error::error_exit(&format!("lexical analysis errror!total {} error.", err), 65);
+        let mut scanner = scanner::Scanner::new(code);
+        let t = scanner.scann();
+        match t {
+            Ok(val) => {
+                for t in val {
+                    println!("{:?}", t);
                 }
+            },
+            Err(err) => {
+                crate::interpreter_error::error_exit(&format!("lexical analysis errror!total {} error.", err), 65);
             }
         }
     }

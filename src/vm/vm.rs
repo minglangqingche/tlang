@@ -1,4 +1,4 @@
-use crate::{debug_tools::disassemble, chunk::{chunk::*, op::Opcode, value::{*, self},}};
+use crate::{debug_tools::disassemble, chunk::{chunk::*, op::Opcode, value::*,}};
 use super::interpret_result::*;
 
 pub struct VM {
@@ -69,7 +69,7 @@ impl VM {
                         return InterpretResult::RUNTIME_ERROR;
                     }
 
-                    self.stack.push(*self.chunk.get_val(val));
+                    self.stack.push(self.chunk.get_val(val).clone());
                 },
                 Opcode::OP_RETURN => {
                     if self.stack.is_empty() {
@@ -127,7 +127,6 @@ impl VM {
                     let left = self.stack.pop().unwrap();
                     self.stack.push(left.divide(&right));
                 },
-                _ => {},
             }
         }
     }

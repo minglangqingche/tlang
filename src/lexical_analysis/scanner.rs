@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use super::{token::*, token_type::*};
+use crate::chunk::value::*;
 
 pub struct Scanner {
     code: Vec<char>,
@@ -222,7 +223,7 @@ impl Scanner {
         
         let val = &self.code[self.start..self.current];
         let t: String = val.to_vec().iter().collect();
-        Some(Token::new(val.to_vec(), TokenType::DOUBLE, Some(Box::<f64>::new(t.parse::<f64>().unwrap())), self.line))
+        Some(Token::new(val.to_vec(), TokenType::DOUBLE, Some(Value::Double(t.parse::<f64>().unwrap())), self.line))
     }
 
     fn peek_next(&self) -> char {
@@ -243,15 +244,14 @@ impl Scanner {
         }
 
         if self.is_end() {
-            self.error("Unterminated string", self.line, "\"..");
-            return None;
+            return self.error("Unterminated string", self.line, "\"..");
         }
 
         self.advance(); // 读入结尾引号
 
         // 去除引号
         let t = self.code[self.start+1..self.current-1].to_vec();
-        Some(Token::new(t.to_vec(), TokenType::STRING, Some(Box::<String>::new(t.iter().collect())), self.line))
+        Some(Token::new(t.to_vec(), TokenType::STRING, Some(Value::String(t.iter().collect())), self.line))
     }
 
     fn peek(&self) -> char {
@@ -265,7 +265,7 @@ impl Scanner {
     fn error(&mut self, massege: &str, line:u32, val: &str) -> Option<Token> {
         crate::interpreter_error::error(&format!("{}\n in line={}, char={}", massege, line, val));
         self.error += 1;
-        None
+        Some(Token::new(vec![], TokenType::ERROR, None, line))
     }
 
     fn match_next(&mut self, expected: char) -> bool {

@@ -1,6 +1,7 @@
 #[derive(Debug)]
 pub enum Value {
     Double(f64),
+    String(String),
     Null,
 }
 
@@ -9,6 +10,7 @@ impl Value {
         match self {
             Value::Double(d) => d.to_string(),
             Value::Null => String::from("null"),
+            Value::String(s) => s.clone(),
         }
     }
 }
@@ -20,6 +22,7 @@ impl Value {
                 Value::Double(left) => {
                     Value::Double(left + right.get_double_val().unwrap())
                 },
+                Value::String(s) => Value::String(format!("{}{}", s, right.get_string_val().unwrap())),
                 Value::Null => Value::Null,
             }
         }else {
@@ -34,6 +37,7 @@ impl Value {
                     Value::Double(left - right.get_double_val().unwrap())
                 },
                 Value::Null => Value::Null,
+                Value::String(_) => Value::Null,
             }
         }else {
             Value::Null
@@ -47,6 +51,7 @@ impl Value {
                     Value::Double(left * right.get_double_val().unwrap())
                 },
                 Value::Null => Value::Null,
+                Value::String(_) => Value::Null,
             }
         }else {
             Value::Null
@@ -65,6 +70,7 @@ impl Value {
                     }
                 },
                 Value::Null => Value::Null,
+                Value::String(_) => Value::Null,
             }
         }else {
             Value::Null
@@ -78,28 +84,32 @@ impl Value {
         }
     }
 
-    pub fn type_eq(&self, other: &Value) -> bool {
+    fn get_string_val(&self) -> Option<String> {
         match self {
-            Value::Double(_) => {
-                match other {
-                    Value::Double(_) => true,
-                    _ => false,
-                }
-            },
-            Value::Null => {
-                match other {
-                    Value::Null => true,
-                    _ => false,
-                }
-            }
+            Value::String(s) => Some(s.clone()),
+            _ => None,
+        }
+    }
+
+    pub fn type_eq(&self, other: &Value) -> bool {
+        self.to_u32() == other.to_u32()
+    }
+
+    fn to_u32(&self) -> u32 {
+        match self {
+            Value::Double(_) => 0,
+            Value::Null => 1,
+            Value::String(_) => 2,
         }
     }
 }
 
-impl Copy for Value {}
-
 impl Clone for Value {
     fn clone(&self) -> Self {
-        *self
+        match self {
+            Value::Double(d) => Value::Double(*d),
+            Value::String(s) => Value::String(s.clone()),
+            Value::Null => Value::Null,
+        }
     }
 }
