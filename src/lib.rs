@@ -81,6 +81,7 @@ pub mod lexical_analysis {
 pub mod chunk {
     pub mod op;
     pub mod chunk;
+    pub mod value;
 }
 
 pub mod debug_tools {

@@ -1,8 +1,8 @@
-use super::op::*;
+use super::{op::*, value::*,};
 
 pub struct Chunk {
     ops: Vec<Opcode>,
-    vals: Vec<f64>,
+    vals: Vec<Value>,
     line: Vec<(usize, u32)>,
 }
 
@@ -57,13 +57,16 @@ impl Chunk {
         }
     }
 
-    pub fn push_val(&mut self, val: f64) -> usize {
+    pub fn push_val(&mut self, val: Value) -> usize {
         self.vals.push(val);
         self.vals.len() - 1
     }
 
-    pub fn get_val(&self, index: usize) -> Option<&f64> {
-        self.vals.get(index)
+    pub fn get_val(&self, index: usize) -> &Value {
+        match self.vals.get(index) {
+            Some(v) => v,
+            None => &Value::Null,
+        }
     }
 
     pub fn op_len(&self) -> usize {

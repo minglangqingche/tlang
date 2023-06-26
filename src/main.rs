@@ -1,5 +1,5 @@
 use std::env;
-use tlang::{interpreter_error, chunk::{chunk, op}, debug_tools::disassemble, vm::{vm::*, interpret_result::InterpretResult}};
+use tlang::{interpreter_error, chunk::{chunk, op, value::*}, debug_tools::disassemble, vm::{vm::*, interpret_result::InterpretResult}};
 
 fn main() {
     // let args: Vec<String> = env::args().collect();
@@ -15,9 +15,9 @@ fn main() {
     // }
 
     let mut chunk = chunk::Chunk::new();
-    let v = chunk.push_val(0.05);
+    let v = chunk.push_val(Value::Double(0.05));
     chunk.push_op(op::Opcode::Op_CONST(v), 0);
-    let v = chunk.push_val(100.0);
+    let v = chunk.push_val(Value::Double(100.0));
     chunk.push_op(op::Opcode::Op_CONST(v), 1);
     chunk.push_op(op::Opcode::Op_RETURN, 2);
     

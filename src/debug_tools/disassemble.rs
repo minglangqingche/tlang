@@ -1,4 +1,4 @@
-use crate::chunk::{chunk::*, op::*};
+use crate::chunk::{chunk::*, op::*,};
 
 pub fn disassemble_chunk(chunk: &Chunk, name: &str) {
     println!("====$ {} $====", name);
@@ -18,10 +18,7 @@ pub fn disassemble_instruction(chunk: &Chunk, offset: usize) {
             println!("{} {:04}$ OP_RETURN,", get_line(chunk, offset), offset);
         },
         Opcode::Op_CONST(index) => {
-            let val = match chunk.get_val(*index) {
-                Some(v) => v.to_string(),
-                None => "null".to_string(),
-            };
+            let val = chunk.get_val(*index).to_string();
             println!("{} {:04}$ OP_CONST {},", get_line(chunk, offset), offset, val);
         },
     }

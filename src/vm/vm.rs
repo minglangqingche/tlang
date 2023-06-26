@@ -1,10 +1,14 @@
-use crate::{debug_tools::disassemble, chunk::{chunk::*, op::Opcode,}};
+use crate::{debug_tools::disassemble, chunk::{chunk::*, op::Opcode, value::*,}};
 use super::interpret_result::*;
 
 pub struct VM {
     chunk: Chunk,
     ip: Option<usize>,
+    
     debug: bool,
+
+    stack: Vec<Value>,
+    stack_max: usize,
 }
 
 impl VM {
@@ -13,7 +17,13 @@ impl VM {
             ip: if chunk.op_len() > 0 { Some(0) }else { None },
             chunk,
             debug: false,
+            stack: Vec::new(),
+            stack_max: 128,
         }
+    }
+
+    pub fn set_stack_max(&mut self, size: usize) {
+        self.stack_max = size;
     }
 
     pub fn set_chunk(& mut self, c: Chunk) -> &mut Self {
@@ -53,15 +63,7 @@ impl VM {
 
             match *a {
                 Opcode::Op_CONST(val) => {
-                    let v = match self.chunk.get_val(val) {
-                        Some(a) => {
-                            a.to_string()
-                        },
-                        None => {
-                            "null".to_string()
-                        }
-                    };
-                    println!("{}", v);
+                    println!("{}", self.chunk.get_val(val).to_string());
                 },
                 Opcode::Op_RETURN => {
                     println!("OP_RETURN");
